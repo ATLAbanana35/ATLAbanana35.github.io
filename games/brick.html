@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+    <title>Casse-Briques</title>
+</head>
+<body>
+    <div class="game-container">
+        <div class="ball"></div>
+        <div class="paddle"></div>
+        <!-- Crée les niveaux avec différentes configurations de briques -->
+        <div class="level" id="level1">
+            <div class="brick"></div>
+            <div class="brick"></div>
+            <div class="brick"></div>
+            <!-- Ajoute d'autres briques selon le niveau 1 -->
+        </div>
+        <div class="level" id="level2" style="display: none;">
+            <!-- Configuration différente pour le niveau 2 -->
+        </div>
+        <!-- Ajoute plus de niveaux selon le besoin -->
+
+        <div class="menu" style="display: none;">
+            <!-- Ajoute les options du menu, par exemple, recommencer, quitter, etc. -->
+        </div>
+
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="bonus">Bonus: <span id="bonus">None</span></div>
+
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

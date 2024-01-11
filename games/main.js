@@ -1,46 +1,117 @@
-let obstacles = [];
-let score = 0;
-let dinausaure_y = 0;
-let dinausaure_html = document.querySelector(".game img");
-function generate_sprite() {
-  let spriteHTML = document.createElement("div");
-  spriteHTML.style.left = "350px";
-  spriteHTML.classList.add("sprite");
-  document.querySelector(".game").appendChild(spriteHTML);
-  obstacles.push(spriteHTML);
-  setTimeout(() => {
-    generate_sprite();
-  }, 1000+Math.floor(Math.random() * 2000))
-}
-document.addEventListener("click", () => {
-  let id = setInterval(() => {
-    if (dinausaure_y > 40) {
-      clearInterval(id);
-    }
-    dinausaure_y++;
-  }, 1);
-    setTimeout(() => {
-      let id = setInterval(() => {
-        if (dinausaure_y <= 0) {
-          clearInterval(id);
+document.addEventListener("DOMContentLoaded", function () {
+    const ball = document.querySelector('.ball');
+    const paddle = document.querySelector('.paddle');
+    const levels = document.querySelectorAll('.level');
+    let currentLevel = 0;
+    let bricks = levels[currentLevel].querySelectorAll('.brick');
+    let bricks_alive = bricks.length;
+    let score = 0;
+
+    let ballX = 10;
+    let ballY = 10;
+    let ballSpeedX = -3;
+    let ballSpeedY = -3;
+
+    let paddleX = 120;
+
+    function update() {
+        if (bricks_alive === 0) {
+            alert("You win! Moving to the next level");
+            currentLevel++;
+            if (currentLevel < levels.length) {
+                bricks = levels[currentLevel].querySelectorAll('.brick');
+                bricks_alive = bricks.length;
+            } else {
+                alert("You completed all levels!");
+                resetGame();
+                return;
+            }
         }
-        dinausaure_y--;
-      }, 1);
-    }, 1000)
-})
-function update() {
-  score++;
-  for (var i = 0; i < obstacles.length; i++) {
-    const current_obstacle = obstacles[i];
-    current_obstacle.style.left = Number((current_obstacle.style.left.replace("px", ""))-3)+"px";
-      if (Number((current_obstacle.style.left.replace("px", ""))-3) < 65 && Number((current_obstacle.style.left.replace("px", ""))-3) > 0 && dinausaure_y <= 30) {
-        document.body.innerHTML = "<h1>Game Over<h1><br> <button onclick='location.reload()'>restart</button>"
-        return;
-      }
-  }
-  document.querySelector("span").textContent = score;
-  dinausaure_html.style.bottom = dinausaure_y-10 + "px";
-  requestAnimationFrame(update);
-}
-generate_sprite();
-update();
+
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        // Gestion des collisions avec les bords
+        if (ballX > 270 || ballX < 0) {
+            ballSpeedX = -ballSpeedX;
+        }
+
+        if (ballY < 0) {
+            ballSpeedY = -ballSpeedY;
+        }
+
+        // Gestion des collisions avec la raquette
+        if (
+            ballY + 20 > 380 &&
+            ballY < 400 &&
+            ballX > paddleX &&
+            ballX < paddleX + 60
+        ) {
+            ballSpeedY = -ballSpeedY;
+        }
+
+        // Gestion des collisions avec les briques
+        let index = 0;
+        bricks.forEach(function (brick) {
+            if (
+                ballY < brick.offsetTop + brick.offsetHeight &&
+                ballY + 20 > brick.offsetTop &&
+                ballX < brick.offsetLeft + brick.offsetWidth &&
+                ballX + 20 > brick.offsetLeft
+            ) {
+                delete bricks[index];
+                brick.style.display = 'none';
+                ballSpeedY = -ballSpeedY;
+                bricks_alive--;
+                score += 10;
+                document.getElementById('score').innerText = score;
+            }
+            index++;
+        });
+
+        ball.style.left = ballX + 'px';
+        ball.style.top = ballY + 'px';
+
+        paddle.style.left = paddleX + 'px';
+
+        if (ballY > 400) {
+            requestAnimationFrame(update);
+        } else {
+            alert("Game over. Your final score: " + score);
+            resetGame();
+        }
+    }
+
+    // Écoute des événements tactiles
+    let touchStartX = 0;
+
+    document.addEventListener('touchstart', function (event) {
+        touchStartX = event.touches[0].clientX;
+    });
+
+    document.addEventListener('touchmove', function (event) {
+        let touchEndX = event.touches[0].clientX;
+        let touchDeltaX = touchEndX - touchStartX;
+
+        if (touchDeltaX < 0 && paddleX > 0) {
+            paddleX -= 5;
+        } else if (touchDeltaX > 0 && paddleX < 270) {
+            paddleX += 5;
+        }
+
+        touchStartX = touchEndX;
+    });
+
+    // Fonction pour réinitialiser le jeu
+    function resetGame() {
+        currentLevel = 0;
+        bricks = levels[currentLevel].querySelectorAll('.brick');
+        bricks_alive = bricks.length;
+        score = 0;
+        document.getElementById('score').innerText = score;
+        alert("Game reset. Starting from Level 1");
+        update();
+    }
+
+    update();
+});
