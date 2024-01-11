@@ -1,3 +1,8 @@
 body {
     font-size: 15pt;
 }
+.game {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
